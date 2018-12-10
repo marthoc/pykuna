@@ -1,0 +1,10 @@
+bin/
+include/
+lib/
+.idea/
+dist/
+*.py[cod]
+pyvenv.cfg
+pip-selfcheck.json
+pykuna.egg-info
+.DS_Store
