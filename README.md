@@ -14,6 +14,7 @@ pykuna's main class is KunaAPI. Create an API object, and authenticate it, like 
 import pykuna
 
 kuna = pykuna.KunaAPI(USERNAME, PASSWORD)
+kuna.authenticate()
 ```
 
 Where:
@@ -29,9 +30,9 @@ kuna.update()
 
 ## Methods
 
-The following methods are available on a camera device object returned by `get_cameras()`:
+The following methods are available on a camera device object in the KunaAPI.cameras list:
 
-- `update()` - refresh device properties from the API.
+- `update()` - refresh only that camera's properties from the API.
 - `get_thumbnail()` - returns a camera snapshot as a jpeg image.
 - `set_property(property=state)` - sets a property of the device. Properties currently settable via pykuna are:
   - `bulb_on` (boolean) - set the lightbulb  on (true) or off (false)
@@ -56,8 +57,6 @@ pykuna interacts with Kuna's (private) mobile device API, which could change at 
 pykuna is synchronous.
 
 pykuna was inspired by the investigative work of @loghound: https://github.com/loghound/kuna-camera-api, but does not yet implement all known endpoints; this project is primarily intended to interface Home Assistant with the Kuna API, and will be further developed with that goal in mind.
-
-pykuna implements no request timeouts.
 
 pykuna will hit v1.0.0 when it's ready for Home Assistant. Until then, pykuna's API may change at any time!
 

@@ -53,7 +53,7 @@ class KunaAPI:
     def _request(self, method, path, json=None, thumbnail=False):
         """Make an API request"""
         import requests
-        from requests.exceptions import HTTPError
+        from requests.exceptions import HTTPError, Timeout
 
         url = '{}/{}/'.format(API_URL, path)
         headers = {
@@ -74,7 +74,7 @@ class KunaAPI:
             headers['User-Agent'] = USER_AGENT_THUMBNAIL
 
         try:
-            result = req(url, headers=headers, json=json)
+            result = req(url, headers=headers, json=json, timeout=3)
             result.raise_for_status()
 
             if thumbnail:
@@ -85,3 +85,5 @@ class KunaAPI:
         except HTTPError as err:
             if err.response.status_code == 401:
                 raise UnauthorizedError('Kuna Auth Token invalid or stale?')
+        except Timeout:
+            _LOGGER.error('Request to Kuna API timed out.')
