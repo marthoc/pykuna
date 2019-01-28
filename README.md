@@ -22,7 +22,7 @@ Where:
 - `USERNAME` is the email address you use for the Kuna app; and,
 - `PASSWORD` is your password for the Kuna app.
 
-After authenticating, populate a list of all cameras in the Kuna account by calling the `update()` method on the API object:
+After authenticating, populate (or refresh) a list of all cameras in the Kuna account by calling the `update()` method on the API object:
 
 ```python
 kuna.update()

@@ -207,22 +207,32 @@ class KunaCamera:
 
     def update(self):
         """Update device info from the Kuna cloud service."""
+        params = {
+            'live': 1
+        }
+
         result = self._request(
             'get',
             '{}/{}/'.format(ENDPOINT_CAMERA,
-                            self.serial_number)
+                            self.serial_number),
+            params=params
         )
 
         self._raw = result
 
     def get_thumbnail(self):
         """Retrieve a thumbnail image for the device."""
+        params = {
+            'live': 1
+        }
+
         result = self._request(
             'get',
             '{}/{}/{}/'.format(ENDPOINT_CAMERA,
                                self.serial_number,
                                ENDPOINT_THUMBNAIL),
-            thumbnail=True
+            thumbnail=True,
+            params=params
         )
 
         return result

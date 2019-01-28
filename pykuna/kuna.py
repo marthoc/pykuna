@@ -40,7 +40,6 @@ class KunaAPI:
 
     def update(self):
         """Refresh the list of all cameras in the Kuna account."""
-
         result = self._request('get', CAMERAS_ENDPOINT)
         cameras = []
 
@@ -50,7 +49,7 @@ class KunaAPI:
 
         self.cameras = cameras
 
-    def _request(self, method, path, json=None, thumbnail=False):
+    def _request(self, method, path, json=None, params=None, thumbnail=False):
         """Make an API request"""
         import requests
         from requests.exceptions import HTTPError, Timeout
@@ -74,7 +73,7 @@ class KunaAPI:
             headers['User-Agent'] = USER_AGENT_THUMBNAIL
 
         try:
-            result = req(url, headers=headers, json=json, timeout=3)
+            result = req(url, headers=headers, json=json, params=params, timeout=3)
             result.raise_for_status()
 
             if thumbnail:
