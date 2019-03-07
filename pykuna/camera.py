@@ -1,5 +1,5 @@
 ENDPOINT_CAMERA = 'cameras'
-ENDPOINT_USER = 'users'
+ENDPOINT_USERS = 'users'
 ENDPOINT_THUMBNAIL = 'thumbnail'
 
 
@@ -241,7 +241,6 @@ class KunaCamera:
                      brightness: int = None,
                      bulb_on: bool = None,
                      led_mask: bool = None,
-                     notifications_enabled: bool = None,
                      volume: int = None):
         """"Set a property of the device."""
         json = {
@@ -249,7 +248,6 @@ class KunaCamera:
                 'brightness': brightness,
                 'bulb_on': bulb_on,
                 'led_mask': led_mask,
-                'notifications_enabled': notifications_enabled,
                 'volume': volume
             }.items() if value is not None
         }
@@ -268,3 +266,27 @@ class KunaCamera:
     def light_off(self):
         """Turn the light bulb off."""
         self.set_property(bulb_on=False)
+
+    def set_notifications(self, notifications_enabled: bool):
+        """Set notifications for the Camera."""
+        path = '{}/{}/{}/{}/'.format(
+            ENDPOINT_CAMERA,
+            self.serial_number,
+            ENDPOINT_USERS,
+            self.owner['email']
+        )
+
+        print(path)
+
+        json = {
+            'notifications_enabled': notifications_enabled
+        }
+
+        self._request('post', path, json=json)
+
+    def enable_notifications(self):
+        self.set_notifications(True)
+
+    def disable_notifications(self):
+        self.set_notifications(False)
+

@@ -1,4 +1,3 @@
-import pykuna
 import sys
 import time
 
@@ -10,15 +9,17 @@ def main():
         exit(1)
 
     # create an API object, passing username and password
-    kuna = pykuna.KunaAPI(sys.argv[1], sys.argv[2])
+    from pykuna import KunaAPI
+    kuna = KunaAPI(sys.argv[1], sys.argv[2])
 
     # authenticate() to get/refresh the access token
     kuna.authenticate()
 
-    # update() to populate .cameras with a list of cameras in the account
+    # update() to populate kuna.cameras with a dict of cameras in the account;
+    # key is camera serial number, value is camera object
     kuna.update()
 
-    for camera in kuna.cameras:
+    for camera in kuna.cameras.values():
         # print the name and serial number of the camera
         print('Camera: {} (Serial No. {})'.format(camera.name, camera.serial_number))
 

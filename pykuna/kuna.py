@@ -6,6 +6,8 @@ from .errors import AuthenticationError, UnauthorizedError
 API_URL = 'https://server.kunasystems.com/api/v1'
 AUTH_ENDPOINT = 'account/auth'
 CAMERAS_ENDPOINT = 'user/cameras'
+RECORDINGS_ENDPOINT = 'recordings'
+
 USER_AGENT = 'Kuna/2.4.4 (iPhone; iOS 12.1; Scale/3.00)'
 USER_AGENT_THUMBNAIL = 'Kuna/156 CFNetwork/975.0.3 Darwin/18.2.0'
 
@@ -20,7 +22,8 @@ class KunaAPI:
         self._username = username
         self._password = password
         self._token = None
-        self.cameras = []
+        self.cameras = {}
+        self.recordings = {}
 
     def authenticate(self):
         """Login and get an auth token."""
@@ -31,23 +34,35 @@ class KunaAPI:
 
         result = self._request('post', AUTH_ENDPOINT, json=json)
 
-        if result is None:
-            raise AuthenticationError('No token returned, check username and password')
-
-        if 'token' in result:
+        try:
             self._token = result['token']
-            return
+        except TypeError:
+            raise AuthenticationError('No Kuna API token response returned, check username and password.')
+        except KeyError as err:
+            _LOGGER.error('Error retrieving Kuna auth token: {}'.format(err))
+            raise err
 
     def update(self):
-        """Refresh the list of all cameras in the Kuna account."""
+        """Refresh the dict of all cameras in the Kuna account."""
         result = self._request('get', CAMERAS_ENDPOINT)
-        cameras = []
 
         for item in result['results']:
-            cam = KunaCamera(item, self._request)
-            cameras.append(cam)
+            self.cameras[item['serial_number']] = KunaCamera(item, self._request)
 
-        self.cameras = cameras
+    def refresh_recordings(self):
+        """Refresh the dict of all recordings in the Kuna account."""
+        if not self.cameras:
+            _LOGGER.warning('Cannot fetch recordings, no cameras in the Kuna account.')
+            return
+
+        for camera in self.cameras.values():
+            params = {
+                'serial_numbers[]': camera.serial_number
+            }
+            result = self._request('get', RECORDINGS_ENDPOINT, params=params)
+
+            for recording in result['results']:
+                self.recordings[recording['label']] = recording['mp4']
 
     def _request(self, method, path, json=None, params=None, thumbnail=False):
         """Make an API request"""
@@ -84,5 +99,8 @@ class KunaAPI:
         except HTTPError as err:
             if err.response.status_code == 401:
                 raise UnauthorizedError('Kuna Auth Token invalid or stale?')
+            else:
+                _LOGGER.error('Kuna API request error: {}'.format(err))
         except Timeout:
             _LOGGER.error('Request to Kuna API timed out.')
+            raise

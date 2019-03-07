@@ -22,7 +22,7 @@ Where:
 - `USERNAME` is the email address you use for the Kuna app; and,
 - `PASSWORD` is your password for the Kuna app.
 
-After authenticating, populate (or refresh) a list of all cameras in the Kuna account by calling the `update()` method on the API object:
+After authenticating, populate (or refresh) a dict of all cameras in the Kuna account (key = camera serial number, value = camera object) by calling the `update()` method on the API object:
 
 ```python
 kuna.update()
@@ -30,7 +30,7 @@ kuna.update()
 
 ## Methods
 
-The following methods are available on a camera device object in the KunaAPI.cameras list:
+The following methods are available on a camera device object in the KunaAPI.cameras dict:
 
 - `update()` - refresh only that camera's properties from the API.
 - `get_thumbnail()` - returns a camera snapshot as a jpeg image.
