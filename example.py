@@ -1,42 +1,39 @@
+import asyncio
 import sys
-import time
+from datetime import timedelta
 
 
-def main():
+async def main():
 
     if len(sys.argv) < 3:
         print('Usage: python example.py USERNAME PASSWORD')
         exit(1)
 
-    # create an API object, passing username and password
+    # create an API object, passing username, password, and an instance of aiohttp.ClientSession
+    from aiohttp import ClientSession
     from pykuna import KunaAPI
-    kuna = KunaAPI(sys.argv[1], sys.argv[2])
+    
+    websession = ClientSession()
+    kuna = KunaAPI(sys.argv[1], sys.argv[2], websession)
 
     # authenticate() to get/refresh the access token
-    kuna.authenticate()
+    await kuna.authenticate()
 
     # update() to populate kuna.cameras with a dict of cameras in the account;
     # key is camera serial number, value is camera object
-    kuna.update()
+    await kuna.update()
 
     for camera in kuna.cameras.values():
         # print the name and serial number of the camera
         print('Camera: {} (Serial No. {})'.format(camera.name, camera.serial_number))
 
-        # download a snapshot from the camera
-        image = camera.get_thumbnail()
-        open('{}.jpeg'.format(camera.name), 'wb').write(image)
+        # retrieve a list of recording objects for all recordings for the past two hours
+        recordings = await camera.get_recordings_by_time(timedelta(hours=2))
+        for recording in recordings:
+            print("Timestamp {}: {}".format(recording.timestamp, await recording.get_download_link()))
 
-        # toggle the camera's light bulb
-        current_state = camera.bulb_on
-        if current_state:
-            camera.set_property(bulb_on=False)
-            time.sleep(2)
-            camera.set_property(bulb_on=True)
-        else:
-            camera.set_property(bulb_on=True)
-            time.sleep(2)
-            camera.set_property(bulb_on=False)
+    await websession.close()
 
-
-main()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close()
