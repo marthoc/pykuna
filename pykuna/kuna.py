@@ -59,7 +59,7 @@ class KunaAPI:
         from asyncio import TimeoutError
 
         url = "{}/{}/".format(API_URL, path)
-        headers = {"User-Agent": USER_AGENT}
+        headers = {"User-Agent": USER_AGENT, "Content-Type": "application/json"}
 
         if self._token:
             headers["Authorization"] = "Token {}".format(self._token)
