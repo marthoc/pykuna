@@ -4,10 +4,10 @@ long_description = open('README.md').read()
 
 setuptools.setup(
     name="pykuna",
-    version="0.5.1",
+    version="0.6.0",
     author="Mark Coombes",
     author_email="mark@markcoombes.ca",
-    description="Python3 library for interacting with the Kuna camera mobile API",
+    description="Python3 async library for interacting with the Kuna camera mobile API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/marthoc/pykuna",

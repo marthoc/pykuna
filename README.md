@@ -61,6 +61,8 @@ python example.py USERNAME PASSWORD
 
 pykuna interacts with Kuna's (private) mobile device API, which could change at any time. And, without official documentation or terms of service, there's no way to know what type or rate of usage may result in your account being banned by Kuna. Use carefully!
 
+pykuna does not implement timeouts; use asyncio_timeout in your client code to wrap calls to the API as needed.
+
 pykuna was inspired by the investigative work of @loghound: https://github.com/loghound/kuna-camera-api, but does not yet implement all known endpoints; this project is primarily intended to interface Home Assistant with the Kuna API, and will be further developed with that goal in mind.
 
 pykuna will hit v1.0.0 when it's ready for Home Assistant. Until then, pykuna's API may change at any time!

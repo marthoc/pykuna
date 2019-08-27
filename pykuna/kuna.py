@@ -47,16 +47,19 @@ class KunaAPI:
         """Refresh the dict of all cameras in the Kuna account."""
         result = await self._request("get", CAMERAS_ENDPOINT)
 
-        for item in result["results"]:
-            self.cameras[item["serial_number"]] = KunaCamera(item, self._request)
+        if result is not None:
+            new_cameras = {}
+
+            for item in result["results"]:
+                new_cameras[item["serial_number"]] = KunaCamera(item, self._request)
+
+            self.cameras = new_cameras
 
     async def _request(
         self, method, path, params=None, json=None, image=False, allow_redirects=True
     ):
         """Make an async API request."""
         from aiohttp import ClientResponseError
-        from async_timeout import timeout
-        from asyncio import TimeoutError
 
         url = "{}/{}/".format(API_URL, path)
         headers = {"User-Agent": USER_AGENT, "Content-Type": "application/json"}
@@ -68,29 +71,25 @@ class KunaAPI:
             headers["User-Agent"] = USER_AGENT_THUMBNAIL
 
         try:
-            async with timeout(3):
-                async with self._websession.request(
-                    method,
-                    url,
-                    params=params,
-                    json=json,
-                    headers=headers,
-                    allow_redirects=allow_redirects,
-                ) as result:
+            async with self._websession.request(
+                method,
+                url,
+                params=params,
+                json=json,
+                headers=headers,
+                allow_redirects=allow_redirects,
+            ) as result:
 
-                    result.raise_for_status()
-                    if image:
-                        return await result.read()
-                    elif not allow_redirects:
-                        return result
-                    else:
-                        return await result.json()
+                result.raise_for_status()
+                if image:
+                    return await result.read()
+                elif not allow_redirects:
+                    return result
+                else:
+                    return await result.json()
 
         except ClientResponseError as err:
             if result.status == 403:
                 raise UnauthorizedError("Kuna token empty or expired")
             else:
                 _LOGGER.error("Kuna API request error: {}".format(err))
-
-        except TimeoutError:
-            _LOGGER.error("Request to Kuna API timed out")
